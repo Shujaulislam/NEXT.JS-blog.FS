@@ -15,7 +15,7 @@ const Home = () => {
       <div className={styles.brand}><Image src="/brands.png" alt='' fill className={styles.brandImg}/></div>
     </div>
     <div className={styles.imageContainer}>
-      <Image src="/hero.gif" alt='' fill className={styles.heroImg}/>
+      <Image unoptimized src="/hero.gif" alt='' fill className={styles.heroImg}/>
     </div>
   </div> 
   );   
