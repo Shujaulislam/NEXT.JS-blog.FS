@@ -10,11 +10,12 @@ const PostCard = () => {
                     <Image src="https://images.pexels.com/photos/6153617/pexels-photo-6153617.jpeg" alt='' fill className={styles.img}/>
                 </div>
                 <span className={styles.date}>01.01.2024</span>
+                    
             </div>
             <div className={styles.bottom}>
                 <h1 className={styles.title}>Title</h1>
-                <p className={styles.desc}>Desc</p>
-                <Link href="/blog/post">READ MORE</Link>
+                <p className={styles.desc}>lorem ahdadna sijacnas coiasjanc aioasjjascn oaidjjaoicn basuhauhdw oiawicn cosaj haodhawodna ciohcassnc.</p>
+                <Link className={styles.link} href="/blog/post">READ MORE</Link>
             </div>
         </div>
     )
