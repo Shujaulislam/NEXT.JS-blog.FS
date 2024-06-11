@@ -1,3 +1,8 @@
+# Project in developement please visit back soon!
+
+### A Next.js based Full stack project
+
+
 ## Getting Started
 
 First, install the dependencies:
