@@ -2,42 +2,39 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    margin-bottom: 20px;
-  }
-  
-  .top{
+}
+
+.top{
     display: flex;
-  }
-  
-  .imgContainer{
-    width: 90%;
+}
+
+.imgContainer{
+    width: 90px;
     height: 400px;
     position: relative;
-  }
-  
-  .img{
+}
+
+.img{
     object-fit: cover;
-  }
-  
-  .date{
-    font-size: 12px;
+}
+
+.date{
+    font-style: 12px;
     transform: rotate(270deg);
-    margin: auto;
-  }
-  
-  .title{
+}
+
+.title{
     width: 90%;
     font-size: 24px;
     margin-bottom: 20px;
-  }
-  
-  .desc{
+}
+
+.desc{
     width: 90%;
     margin-bottom: 20px;
     font-weight: 300;
     color: gray;
-  }
-  
-  .link{
+}
+.link{
     text-decoration: underline;
-  }
+}
