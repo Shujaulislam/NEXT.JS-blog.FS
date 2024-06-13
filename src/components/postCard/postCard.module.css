@@ -2,39 +2,42 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-}
-
-.top{
+    margin-bottom: 20px;
+  }
+  
+  .top{
     display: flex;
-}
-
-.imgContainer{
-    width: 90px;
+  }
+  
+  .imgContainer{
+    width: 90%;
     height: 400px;
     position: relative;
-}
-
-.img{
+  }
+  
+  .img{
     object-fit: cover;
-}
-
-.date{
-    font-style: 12px;
+  }
+  
+  .date{
+    font-size: 12px;
     transform: rotate(270deg);
-}
-
-.title{
+    margin: auto;
+  }
+  
+  .title{
     width: 90%;
     font-size: 24px;
     margin-bottom: 20px;
-}
-
-.desc{
+  }
+  
+  .desc{
     width: 90%;
     margin-bottom: 20px;
     font-weight: 300;
     color: gray;
-}
-.link{
+  }
+  
+  .link{
     text-decoration: underline;
-}
+  }

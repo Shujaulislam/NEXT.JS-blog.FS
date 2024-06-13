@@ -3,13 +3,15 @@ import styles from './postCard.module.css'
 import Link from 'next/link'
 
 const PostCard = () => {
+    const date = new Date();
+    const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth()+1).toString().padStart(2, '0')}/${date.getFullYear()}`;
     return (
         <div className={styles.container}>
             <div className={styles.top}>
                 <div className={styles.imgContainer}>
                     <Image src="https://images.pexels.com/photos/6153617/pexels-photo-6153617.jpeg" alt='' fill className={styles.img}/>
                 </div>
-                <span className={styles.date}>01.01.2024</span>
+                <span className={styles.date}>{formattedDate}</span>
                     
             </div>
             <div className={styles.bottom}>
