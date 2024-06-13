@@ -28,7 +28,8 @@
     border: none;
     outline: none;
     border-color: var(--bgSoft);
-    color: var(--text);
+    /* color: var(--text); */
+    color: black;
 }
 
 .form button{
