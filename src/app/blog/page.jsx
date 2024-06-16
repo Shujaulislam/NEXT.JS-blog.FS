@@ -1,28 +1,20 @@
 import PostCard from "@/components/postCard/postCard"
 import styles from "./blog.module.css"
+import { getPosts } from "@/library/data";
 
-const BlogPage = () => {
+
+const BlogPage = async () => {
+    const posts = await getPosts();
     return (
         <div className={styles.container}>
-            <div className={styles.post}>
-            <PostCard/>
+        {posts.map((post) => (
+            <div className={styles.post} key={post.id}>
+            <PostCard post={post}/>
             </div>
-            
-            <div className={styles.post}>
-            <PostCard/>
-            </div>
-            
-            <div className={styles.post}>
-            <PostCard/>
-            </div>
-            
-            <div className={styles.post}>
-            <PostCard/>
-            </div>
-            
+        ))}          
             
         </div>
-    )
-}
+    );
+};
 
 export default BlogPage
