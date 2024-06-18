@@ -13,10 +13,7 @@
     object-fit: cover;
 }
 
-.avatar{
-    object-fit: cover;
-    border-radius: 50%;
-}
+
 
 .textContainer{
     flex: 2;

@@ -48,7 +48,7 @@ const postSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    userId:{
+    slug:{
         type:String,
         required:true,
         unique:true,
