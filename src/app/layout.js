@@ -6,9 +6,12 @@ import Footer from '@/components/footer/footer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'BlogApp',
+  title: {
+    default: 'BlogApp Home page',
+    template:'%s | BlogApp'
+  },
   description: 'Next.js Blog-App',
-}
+};
 
 export default function RootLayout({ children }) {
   return (
