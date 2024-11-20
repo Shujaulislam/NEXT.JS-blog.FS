@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { connectToDb } from "./utils";
 import { Post, User } from "./models";
 import { signIn, signOut } from "./auth";
+import bcrypt from "bcrypt";
 
 
 export const addPost = async (FormData) => {
@@ -58,7 +59,9 @@ export const register = async (formData) => {
         if (user) {
             return "User already exists";
         }
-        const newUser = new User({username, email, password});
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const newUser = new User({username, email, password: hashedPassword});
         await newUser.save();
         console.log("user created in db")
     }
