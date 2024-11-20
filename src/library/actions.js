@@ -70,3 +70,16 @@ export const register = async (formData) => {
         return {error: "Failed to register!"};
     }
 };
+
+export const login = async (formData) => {
+    const {username, password} = Object.fromEntries(formData);
+
+    try{
+        await signIn("credentials", {username, password });
+        console.log("HI! welcome")
+    }
+    catch(err){
+        console.log(err)
+        return {error: "Failed to sign in!"};
+    }
+};
