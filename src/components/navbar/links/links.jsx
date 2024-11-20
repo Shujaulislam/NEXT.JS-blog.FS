@@ -4,6 +4,7 @@ import styles from "./links.module.css"
 import NavLink from "./navLinks/navlinks";
 import { useState } from "react";
 import Image from "next/image";
+import { handleGithublogout } from "@/library/actions";
 
 const links = [
     {   title: "Homepage",
@@ -23,13 +24,13 @@ const links = [
 
 
 
-const Links = () => {
+const Links = ({session}) => {
 
     const [open,setOpen] = useState(false)
 
     //TEMPORARAY
-    const session = true
-    const isAdmin = false
+    // const session = true
+    const isAdmin = true
 
     return (
         <div className={styles.container}>
@@ -37,14 +38,16 @@ const Links = () => {
         <div className={styles.links}>
         {links.map((link=>
         (<NavLink item={link} key={link.title}></NavLink>)))}
-        {session ? (
+        {session?.user ? (
             <>
             {
-                isAdmin && (
+                session.user?.isAdmin && (
                     <NavLink item={{title: "Admin", path: "/admin"}}/>
                 )
             }
-            <button className={styles.logout}>Logout</button>
+             <form action={handleGithublogout}>
+              <button className={styles.logout}>Logout</button>
+             </form>
             </>
             
         ) : (

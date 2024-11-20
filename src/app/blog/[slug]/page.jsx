@@ -1,13 +1,23 @@
 import Image from 'next/image';
 import styles from './singlepost.module.css'
-import { Suspense } from 'react';
 import PostUser from '@/components/postUser/postUser';
+import { Suspense } from 'react';
 import { getPost } from '@/library/data';
 
+// FETCH DATA WITH AN API
+const getData = async (slug) => {
+  const res = await fetch(`http://localhost:3000/api/blog/${slug}`);
+
+  if(!res.ok) throw new Error('Failed to fetch data');
+
+  return res.json(); 
+};
 
 export const generateMetadata = async  ({params}) => {
   const { slug } = params;
+
   const post = await getPost(slug);
+
   return{
     title: post.title,
     description: post.description,
@@ -18,13 +28,19 @@ const SinglePostPage = async ({params}) => {
 
   const { slug } = params;
 
-  const post = await getPost(slug);
+// FETCH DATA WITH AN API
+  const post = await getData(slug);
+
+// FETCH DATA WITH DATABASE
+
+  // const post = await getPost(slug);
   console.log(post);
 
   const date = new Date();
     const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth()+1).toString().padStart(2, '0')}/${date.getFullYear()}`;
 
-    return <div className={styles.container}>
+    return (
+    <div className={styles.container}>
       {post.img && <div className={styles.imgContainer}>
         <Image className={styles.img} src={post.img} alt='' fill/>
       </div>}
@@ -44,7 +60,8 @@ const SinglePostPage = async ({params}) => {
         {post.description}
         </div>
       </div>
-    </div>;
+    </div>
+    );
   };
   
   export default SinglePostPage;
