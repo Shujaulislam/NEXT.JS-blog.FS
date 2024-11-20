@@ -48,22 +48,23 @@ export const handleGithublogout = async () => {
     await signOut();
 }
 
-export const register = async (formData) => {
+export const register = async (previousState,formData) => {
     const {username, email, password, confirmPassword} = Object.fromEntries(formData);
     if (password !== confirmPassword) {
-        return "Passwords do not match";
+        return {error: "Passwords do not match"};
     }
     try{
         connectToDb();
         const user = await User.findOne({username});
         if (user) {
-            return "User already exists";
+            return {error: "User already exists"};
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         const newUser = new User({username, email, password: hashedPassword});
         await newUser.save();
-        console.log("user created in db")
+        console.log("user created in db");
+        return {success: "User created successfully"};
     }
     catch(err){
         console.log(err)
@@ -71,15 +72,17 @@ export const register = async (formData) => {
     }
 };
 
-export const login = async (formData) => {
+export const login = async (previousState, formData) => {
     const {username, password} = Object.fromEntries(formData);
 
     try{
         await signIn("credentials", {username, password });
-        console.log("HI! welcome")
     }
     catch(err){
-        console.log(err)
-        return {error: "Failed to sign in!"};
+        console.log(err);
+        if (err.message.includes("CredentialsSignin")) {
+            return {error: "Wrong username or password"};
+        }
+        throw err;
     }
-};
+}; 
