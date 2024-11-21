@@ -69,4 +69,3 @@ auth, signIn, signOut
                 ...authConfig.callbacks,
                 },
             });
-                

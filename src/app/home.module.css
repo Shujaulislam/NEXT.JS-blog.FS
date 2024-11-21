@@ -30,7 +30,7 @@
 }
 
 .button:first-child{
-    border-color: var(--btn);
+    background-color: var(--btn);
     color: var(--text);
 }
 .brand{

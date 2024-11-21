@@ -7,33 +7,67 @@ import { signIn, signOut } from "./auth";
 import bcrypt from "bcrypt";
 
 
-export const addPost = async (FormData) => {
+export const addPost = async (prevState,FormData) => {
     const {title, description,userId,slug} = Object.fromEntries(FormData);
 
     try{
         connectToDb();
         const newPost = new Post({title, description,userId,slug});
         await newPost.save();
-        console.log("saved to database")
-        revalidatePath("/blog")
+        console.log("post saved to database")
+        revalidatePath("/blog");
+        revalidatePath("/admin");
     }
     catch(err){
         console.log(err)
-        throw new Error("Failed to create post!")
+        return {error: "Failed to create post!"}
     }
 };
 
 export const deletePost = async (formData) => {
-    const {id} = Object.fromEntries(formData);
+    const { id } = Object.fromEntries(formData);
+
     try{
         connectToDb();
         await Post.findByIdAndDelete(id);
         console.log("deleted from database")
-        revalidatePath("/blog")
+        revalidatePath("/blog");
+        revalidatePath("/admin");
     }
     catch(err){
         console.log(err)
-        throw new Error("Failed to delete post!")
+        return {error: "Failed to delete post!"}
+    }
+};
+
+export const addUser = async (prevState, FormData) => {
+    const {username, email, password, img} = Object.fromEntries(FormData);
+
+    try{
+        connectToDb();
+        const newUser = new User({username, email, password, img});
+        await newUser.save();
+        console.log("User saved to database")
+        revalidatePath("/admin")
+    }
+    catch(err){
+        console.log(err)
+        return {error: "Failed to add USER!"}
+    }
+};
+
+export const deleteUser = async (formData) => {
+    const {id} = Object.fromEntries(formData);
+    try{
+        connectToDb();
+        await Post.deleteMany({userId:id});
+        await User.findByIdAndDelete(id);
+        console.log("User deleted from database")
+        revalidatePath("/admin")
+    }
+    catch(err){
+        console.log(err)
+        return {error: "Failed to Delete USER!"}
     }
 };
 
@@ -72,17 +106,17 @@ export const register = async (previousState,formData) => {
     }
 };
 
-export const login = async (previousState, formData) => {
-    const {username, password} = Object.fromEntries(formData);
-
-    try{
-        await signIn("credentials", {username, password });
+export const login = async (prevState, formData) => {
+    const { username, password } = Object.fromEntries(formData);
+  
+    try {
+      await signIn("credentials", { username, password });
+    } catch (err) {
+      console.log(err);
+  
+      if (err.message.includes("CredentialsSignin")) {
+        return { error: "Invalid username or password" };
+      }
+      throw err;
     }
-    catch(err){
-        console.log(err);
-        if (err.message.includes("CredentialsSignin")) {
-            return {error: "Wrong username or password"};
-        }
-        throw err;
-    }
-}; 
+  };
