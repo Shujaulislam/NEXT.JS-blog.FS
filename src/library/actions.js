@@ -8,11 +8,11 @@ import bcrypt from "bcrypt";
 
 
 export const addPost = async (prevState,FormData) => {
-    const {title, description,userId,slug} = Object.fromEntries(FormData);
+    const {title, description,userId,slug,img} = Object.fromEntries(FormData);
 
     try{
         connectToDb();
-        const newPost = new Post({title, description,userId,slug});
+        const newPost = new Post({title, description,userId,slug,img});
         await newPost.save();
         console.log("post saved to database")
         revalidatePath("/blog");
@@ -41,11 +41,13 @@ export const deletePost = async (formData) => {
 };
 
 export const addUser = async (prevState, FormData) => {
-    const {username, email, password, img} = Object.fromEntries(FormData);
+    const {username, email, password, img, isAdmin} = Object.fromEntries(FormData);
 
     try{
         connectToDb();
-        const newUser = new User({username, email, password, img});
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const newUser = new User({username, email, password:hashedPassword, img, isAdmin: isAdmin === "true"});
         await newUser.save();
         console.log("User saved to database")
         revalidatePath("/admin")

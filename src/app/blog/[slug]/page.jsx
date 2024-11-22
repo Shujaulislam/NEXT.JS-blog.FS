@@ -3,10 +3,14 @@ import styles from './singlePost.module.css'
 import PostUser from '@/components/postUser/postUser';
 import { Suspense } from 'react';
 import { getPost } from '@/library/data';
+import { headers } from 'next/headers';
 
 // FETCH DATA WITH AN API
 const getData = async (slug) => {
-  const res = await fetch(`http://localhost:3000/api/blog/${slug}`);
+
+  const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+  const host = headers().get('host');
+  const res = await fetch(`${protocol}://${host}/api/blog/${slug}`);
 
   if(!res.ok) throw new Error('Failed to fetch data');
 

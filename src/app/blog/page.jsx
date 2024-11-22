@@ -1,11 +1,15 @@
 import PostCard from "@/components/postCard/postCard"
 import styles from "./blog.module.css"
+import { headers } from 'next/headers';
 import { getPosts } from "@/library/data";
 
 // FETCH DATA WITH AN API   
 
 const getData = async () => {
-    const res = await fetch('http://localhost:3000/api/blog', {next: {revalidate: 3600}});
+
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+    const host = headers().get('host');
+    const res = await fetch(`${protocol}://${host}/api/blog`, {next: {revalidate: 3600}});
 
     if(!res.ok) throw new Error('Failed to fetch data');
 
