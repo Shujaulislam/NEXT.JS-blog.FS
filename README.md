@@ -1,6 +1,6 @@
 # Next.js Blog Platform
 
-A modern, full-stack blog platform built with Next.js 13+, featuring user authentication, blog post management, and admin capabilities.
+A modern, full-stack blog platform built with Next.js 14+, featuring user authentication, blog post management, and admin capabilities.
 
 ## 🚀 Tech Stack
 
