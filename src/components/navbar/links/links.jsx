@@ -1,5 +1,6 @@
 "use client";
-import Link from "next/link";
+
+// import Link from "next/link";
 import styles from "./links.module.css"
 import NavLink from "./navLinks/navlinks";
 import { useState } from "react";
@@ -30,7 +31,7 @@ const Links = ({session}) => {
 
     //TEMPORARAY
     // const session = true
-    const isAdmin = true
+    // const isAdmin = true
 
     return (
         <div className={styles.container}>

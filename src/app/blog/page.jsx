@@ -1,7 +1,7 @@
 import PostCard from "@/components/postCard/postCard"
 import styles from "./blog.module.css"
 import { headers } from 'next/headers';
-import { getPosts } from "@/library/data";
+// import { getPosts } from "@/library/data";  //to use when fetching data with database
 
 // FETCH DATA WITH AN API   
 

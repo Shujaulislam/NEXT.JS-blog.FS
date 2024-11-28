@@ -22,3 +22,13 @@
     color: var(--textColor);
     cursor: pointer;
 }
+
+.error {
+    color: #e74c3c;
+    background-color: #fdeaea;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-size: 14px;
+    text-align: center;
+}

@@ -6,24 +6,33 @@ import { User } from "./models";
 import bcrypt from "bcrypt";
 import { authConfig } from "./auth.config";
 
-
 const login = async (credentials) => {
+    if (!credentials?.username || !credentials?.password) {
+        throw new Error("CREDENTIALS_MISSING");
+    }
+    
     try {
-        connectToDb();
+        await connectToDb();
+    } catch (error) {
+        console.error("Database connection failed:", error);
+        throw new Error("DATABASE_ERROR");
+    }
+
+    try {
         const user = await User.findOne({username: credentials.username});
         if(!user){
-            throw new Error("Wrong username!");
+            throw new Error("INVALID_USERNAME");
         }
+
         const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
         if(!isPasswordCorrect){
-            throw new Error("Wrong Password!");
+            throw new Error("INVALID_PASSWORD");
         }
-        return user;
 
+        return user;
     } catch (error) {
-        console.log(error);
-        throw new Error("Failed to login!");
-        
+        console.error("Login error:", error);
+        throw error;
     }
 }
 
@@ -39,7 +48,9 @@ auth, signIn, signOut
                 const user = await login(credentials);
                 return user;
             } catch (error) {
-                return null;
+                console.error("Authorization error:", error.message);
+                // Propagate specific error types
+                throw new Error(error.message);
             }
          },
         }),           
@@ -48,24 +59,44 @@ auth, signIn, signOut
                     async signIn({user, account, profile}) {
                         console.log( user, account, profile );
                         if (account.provider === "github") {
-                            connectToDb();
-                            try{
+                            if (!profile?.email) {
+                                console.error("No email provided from GitHub");
+                                return false;
+                            }
+
+                            try {
+                                await connectToDb();
+                            } catch (error) {
+                                console.error("Database connection failed:", error);
+                                return false;
+                            }
+
+                            try {
                                 const user = await User.findOne({email: profile.email});
                                 if(!user){
+                                    // Generate a unique username if GitHub login exists
+                                    let uniqueUsername = profile.login;
+                                    let counter = 1;
+                                    while (await User.findOne({username: uniqueUsername})) {
+                                        uniqueUsername = `${profile.login}${counter}`;
+                                        counter++;
+                                    }
+
                                     const newUser = new User({
-                                        username: profile.login,
+                                        username: uniqueUsername,
                                         email: profile.email,
-                                        img: profile.avatar_url, 
+                                        img: profile.avatar_url,
                                     });
                                     await newUser.save();
                                 }
-                            }catch(err){
-                                console.log(err);
+                                return true;
+                            } catch(err) {
+                                console.error("GitHub authentication error:", err);
                                 return false;
                             }
                         }
                         return true;
-                },
+                    },
                 ...authConfig.callbacks,
                 },
             });
