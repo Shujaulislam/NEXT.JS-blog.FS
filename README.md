@@ -4,7 +4,7 @@ A modern, full-stack blog platform built with Next.js 13+, featuring user authen
 
 ## 🚀 Tech Stack
 
-- **Framework**: Next.js 13+ (App Router)
+- **Framework**: Next.js 14+ (App Router)
 - **Authentication**: NextAuth.js with GitHub OAuth and Credentials Provider
 - **Database**: MongoDB with Mongoose ODM
 - **Styling**: CSS Modules
