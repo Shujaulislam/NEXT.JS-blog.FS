@@ -1,29 +1,26 @@
-import { Inter } from 'next/font/google'
-import './globals.css'
-import Navbar from '@/components/navbar/navbar'
-import Footer from '@/components/footer/footer'
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: {
-    default: 'BlogApp Home page',
-    template:'%s | BlogApp'
+    default: "BlogApp Home page",
+    template: "%s | BlogApp",
   },
-  description: 'Next.js Blog-App',
+  description: "Next.js Blog-App",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-    
-    <body className={inter.className}>
-    <div className='container'>
-      <Navbar/>
-      {children}
-      <Footer/>
-      </div>
+      <body className={inter.className}>
+        <Navbar />
+          {children}
+        <Footer />
       </body>
     </html>
-  )
+  );
 }
