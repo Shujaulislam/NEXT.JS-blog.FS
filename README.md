@@ -1,3 +1,12 @@
+# Under Revamp :
+- Re-wiring UI 
+- Enhancing UX
+- Auth behaviour corrections
+
+**As of 10/08/2025 will update the readme once done** 
+
+Feel free to contact me on shujaulisl@gmail.com
+<!-- 
 # Next.js Blog Platform
 
 A modern, full-stack blog platform built with Next.js 14+, featuring user authentication, blog post management, and admin capabilities.
@@ -165,6 +174,8 @@ NEXTAUTH_SECRET=your_nextauth_secret
     bun dev
     ```
     Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+     
+-->
 
 ## 🌐 Deployment
 
