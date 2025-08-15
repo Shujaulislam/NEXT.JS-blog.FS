@@ -32,13 +32,14 @@ function Footer() {
   const [email, setEmail] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleNewsletterSubmit = async (e) => {
+  const handleNewsletterSubmit = (e) => {
     e.preventDefault()
     setIsSubmitting(true)
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setEmail("")
-    setIsSubmitting(false)
+    setTimeout(() => {
+      setEmail("")
+      setIsSubmitting(false)
+    }, 1000)
     // You can add actual newsletter signup logic here
   }
 
