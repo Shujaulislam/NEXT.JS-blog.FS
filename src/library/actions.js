@@ -5,6 +5,7 @@ import { connectToDb } from "./utils";
 import { Post, User } from "./models";
 import { signIn, signOut } from "./auth";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 
 export const addPost = async (prevState,FormData) => {
@@ -178,5 +179,65 @@ export const login = async (prevState, formData) => {
     } catch (err) {
         console.error("Login error:", err);
         return { error: "An unexpected error occurred. Please try again later" };
+    }
+};
+
+// Request password reset: generates token and returns a link (in real apps, email it)
+export const requestPasswordReset = async (prevState, formData) => {
+    const { email } = Object.fromEntries(formData);
+    if (!email) return { error: "Please provide your email" };
+
+    try {
+        await connectToDb();
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            // Do not reveal existence
+            return { success: "If that email exists, a reset link has been generated." };
+        }
+
+        const token = crypto.randomBytes(32).toString("hex");
+        const expires = new Date(Date.now() + 1000 * 60 * 30); // 30 minutes
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = expires;
+        await user.save();
+
+        return { success: "Reset link generated", token };
+    } catch (err) {
+        console.error("requestPasswordReset error:", err);
+        return { error: "Could not process request. Please try again later." };
+    }
+};
+
+// Perform password reset using token
+export const resetPassword = async (prevState, formData) => {
+    const { token, password, confirmPassword } = Object.fromEntries(formData);
+    if (!token || !password || !confirmPassword) {
+        return { error: "Missing fields" };
+    }
+    if (password.length < 6) {
+        return { error: "Password must be at least 6 characters long" };
+    }
+    if (password !== confirmPassword) {
+        return { error: "Passwords do not match" };
+    }
+
+    try {
+        await connectToDb();
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: new Date() },
+        });
+        if (!user) return { error: "Invalid or expired token" };
+
+        const salt = await bcrypt.genSalt(10);
+        const hashed = await bcrypt.hash(password, salt);
+        user.password = hashed;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+        return { success: "Password updated successfully" };
+    } catch (err) {
+        console.error("resetPassword error:", err);
+        return { error: "Could not reset password. Please try again later." };
     }
 };
