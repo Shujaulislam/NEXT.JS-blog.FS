@@ -11,7 +11,7 @@ import {
   NavbarButton,
 } from "@/components/ui/resizable-navbar";
 import Link from "next/link";
-
+import { ThemeToggle } from "@/components/theme-toggle";
 
 
 const items = [
@@ -37,6 +37,7 @@ function Navbar() {
           <div className="hidden items-center gap-2 lg:flex">
             <NavbarButton href="/login" variant="secondary">Login</NavbarButton>
             <NavbarButton href="/register" variant="primary">Sign up</NavbarButton>
+            <ThemeToggle />
           </div>
         </div>
       </NavBody>
