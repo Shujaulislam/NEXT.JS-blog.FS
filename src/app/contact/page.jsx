@@ -12,7 +12,6 @@ import {
   MapPin,
   Clock,
   CheckCircle,
-  AlertCircle,
 } from "lucide-react";
 
 // export const metadata = {
@@ -42,17 +41,17 @@ const ContactPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setSubmitStatus("success");
-    setIsSubmitting(false);
-
-    // Reset form after success
+    // Simulate form submission using setTimeout instead of Promise
     setTimeout(() => {
-      setSubmitStatus(null);
-      setFormData({ name: "", email: "", phone: "", message: "" });
-    }, 3000);
+      setSubmitStatus("success");
+      setIsSubmitting(false);
+
+      // Reset form after success
+      setTimeout(() => {
+        setSubmitStatus(null);
+        setFormData({ name: "", email: "", phone: "", message: "" });
+      }, 3000);
+    }, 1500);
   };
 
   const contactInfo = [
@@ -111,8 +110,8 @@ const ContactPage = () => {
               Get in Touch
             </h1>
             <p className="text-lg xsm:text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
-              Have a question or want to work together? We'd love to hear from
-              you. Send us a message and we'll respond as soon as possible.
+              Have a question or want to work together? We&apos;d love to hear from
+              you. Send us a message and we&apos;ll respond as soon as possible.
             </p>
           </motion.div>
         </div>
@@ -133,7 +132,7 @@ const ContactPage = () => {
                 Send us a Message
               </h2>
               <p className="text-foreground/70">
-                Fill out the form below and we'll get back to you within 24
+                Fill out the form below and we&apos;ll get back to you within 24
                 hours.
               </p>
             </div>
@@ -256,7 +255,7 @@ const ContactPage = () => {
                 >
                   <CheckCircle className="h-5 w-5" />
                   <span>
-                    Message sent successfully! We'll get back to you soon.
+                    Message sent successfully! We&apos;ll get back to you soon.
                   </span>
                 </motion.div>
               )}
@@ -337,8 +336,8 @@ const ContactPage = () => {
                 Ready to Start a Project?
               </h2>
               <p className="text-foreground/70 max-w-2xl mx-auto mb-8">
-                Let's discuss how we can help bring your ideas to life. Whether it's
-                a small project or a large-scale application, we're here to help you
+                Let&apos;s discuss how we can help bring your ideas to life. Whether it&apos;s
+                a small project or a large-scale application, we&apos;re here to help you
                 succeed.
               </p>
               <div className="flex flex-col xsm:flex-row gap-4 justify-center">

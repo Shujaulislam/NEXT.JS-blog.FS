@@ -107,8 +107,8 @@ export default function Page() {
           with the goal of sparking conversation and inspiring action.
         </p>
         <p className="mt-4 text-foreground/60">
-          We believe the best ideas come from open collaboration. That's why we welcome contributions from writers and
-          readers alike, and we're continuously improving the reading experience for accessibility and performance.
+          We believe the best ideas come from open collaboration. That&apos;s why we welcome contributions from writers and
+          readers alike, and we&apos;re continuously improving the reading experience for accessibility and performance.
         </p>
       </section>
 
