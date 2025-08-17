@@ -3,9 +3,10 @@ import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Calendar, Clock, X, ChevronDown, ChevronUp } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 const BlogPage = () => {
-  const [expandedCards, setExpandedCards] = useState(new Set())
+  const [expandedCards, setExpandedCards] = useState([])
   const [posts, setPosts] = useState([])
 
   // Fetch posts from your API
@@ -26,13 +27,13 @@ const BlogPage = () => {
   }, [])
 
   const toggleExpanded = (cardId) => {
-    const newExpanded = new Set(expandedCards)
-    if (newExpanded.has(cardId)) {
-      newExpanded.delete(cardId)
-    } else {
-      newExpanded.add(cardId)
-    }
-    setExpandedCards(newExpanded)
+    setExpandedCards(prev => {
+      if (prev.includes(cardId)) {
+        return prev.filter(id => id !== cardId)
+      } else {
+        return [...prev, cardId]
+      }
+    })
   }
 
   // Calculate read time based on description length
@@ -103,7 +104,7 @@ const BlogPage = () => {
         {/* Blog Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {posts.map((post) => {
-            const isExpanded = expandedCards.has(post._id)
+            const isExpanded = expandedCards.includes(post._id)
             const readTime = calculateReadTime(post.description)
             const formattedDate = formatDate(post.createdAt)
             
@@ -111,9 +112,11 @@ const BlogPage = () => {
               <div key={post._id} className="group">
                 <Card className="transition-all duration-500 bg-card border border-border hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/10 group-hover:scale-105">
                   <div className="relative overflow-hidden">
-                    <img
+                    <Image
                       src={post.img || "/placeholder.svg"}
                       alt={post.title}
+                      width={400}
+                      height={256}
                       className="w-full object-cover h-64 transition-all duration-500 group-hover:scale-110"
                     />
                     {isExpanded && (
