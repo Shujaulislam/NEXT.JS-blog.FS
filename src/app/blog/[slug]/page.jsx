@@ -7,18 +7,28 @@ import { headers } from 'next/headers';
 
 // FETCH DATA WITH AN API
 const getData = async (slug) => {
+  try {
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+    const host = (await headers()).get('host');
+    const res = await fetch(`${protocol}://${host}/api/blog/${slug}`, {
+      // Add cache control if needed
+      // cache: 'no-store',
+    });
 
-  const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
-  const host = headers().get('host');
-  const res = await fetch(`${protocol}://${host}/api/blog/${slug}`);
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to fetch post');
+    }
 
-  if(!res.ok) throw new Error('Failed to fetch data');
-
-  return res.json(); 
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching post:', error);
+    throw error; // Re-throw to be caught by error boundary
+  }
 };
 
 export const generateMetadata = async  ({params}) => {
-  const { slug } = params;
+  const { slug } = await params;
 
   const post = await getPost(slug);
 
@@ -30,7 +40,7 @@ export const generateMetadata = async  ({params}) => {
 
 const SinglePostPage = async ({params}) => {
 
-  const { slug } = params;
+  const { slug } = await params;
 
 // FETCH DATA WITH AN API
   const post = await getData(slug);
