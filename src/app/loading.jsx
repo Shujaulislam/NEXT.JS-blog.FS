@@ -1,17 +1,19 @@
-import styles from "./loading.module.css"
+import TetrisLoading from "@/components/ui/tetris-loader";
 
-const Loading = () => {
-    
-    return (
-        <div className={styles.container}>
-            <div className={styles.spinner}>
-                <div className={styles.dot}></div>
-                <div className={styles.dot}></div>
-                <div className={styles.dot}></div>
-            </div>
-        </div>
-    )
-}
+const loading = () => {
+  return (
+    <main className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <TetrisLoading
+          size="lg"
+          speed="normal"
+          showLoadingText={true}
+          loadingText="Loading page..."
+          className="text-black dark:text-white"
+        />
+      </div>
+    </main>
+  );
+};
 
-export default Loading
-
+export default loading;
