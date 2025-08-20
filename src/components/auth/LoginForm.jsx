@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { useFormState } from "react-dom";
+import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -11,6 +12,14 @@ import { login, handleGithublogin } from "@/library/actions";
 
 export default function LoginForm({ className }) {
   const [state, formAction] = useFormState(login, undefined);
+  const router = useRouter();
+
+  // Handle successful login redirect
+  useEffect(() => {
+    if (state?.success) {
+      router.push("/");
+    }
+  }, [state?.success, router]);
 
   return (
     <div className={cn("shadow-input mx-auto w-full max-w-md rounded-none bg-white p-4 md:rounded-2xl md:p-8 dark:bg-black", className)}>
@@ -32,6 +41,12 @@ export default function LoginForm({ className }) {
         {state?.error && (
           <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-300">
             {state.error}
+          </div>
+        )}
+
+        {state?.success && (
+          <div className="mb-4 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
+            {state.success}
           </div>
         )}
 
@@ -80,7 +95,7 @@ export default function LoginForm({ className }) {
       </form>
 
       <p className="mt-4 text-center text-xs text-neutral-600 dark:text-neutral-400">
-        Don’t have an account? {" "}
+        Don't have an account? {" "}
         <Link href="/register" className="underline">Register</Link>
       </p>
     </div>
