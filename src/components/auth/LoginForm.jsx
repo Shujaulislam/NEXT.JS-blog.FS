@@ -95,7 +95,7 @@ export default function LoginForm({ className }) {
       </form>
 
       <p className="mt-4 text-center text-xs text-neutral-600 dark:text-neutral-400">
-        Don't have an account? {" "}
+        Don&apos;t have an account? {" "}
         <Link href="/register" className="underline">Register</Link>
       </p>
     </div>
