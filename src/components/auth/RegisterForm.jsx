@@ -1,21 +1,60 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
-import { useFormState } from "react-dom";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { register } from "@/library/actions";
-import { useRouter } from "next/navigation";
 
 export default function RegisterForm({ className }) {
-  const [state, formAction] = useFormState(register, undefined);
+  const [state, setState] = useState({ error: null, success: null });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    if (state?.success) router.push("/login");
+    if (state?.success) {
+      router.push("/login");
+    }
   }, [state?.success, router]);
+
+  // Handle form submission
+  const handleSubmit = async (formData) => {
+    setIsSubmitting(true);
+    setState({ error: null, success: null });
+    
+    startTransition(async () => {
+      try {
+        const result = await register(null, formData);
+        setState(result);
+      } catch {
+        setState({ error: "An unexpected error occurred. Please try again." });
+      } finally {
+        setIsSubmitting(false);
+      }
+    });
+  };
+
+  // If already authenticated, redirect
+  if (status === "loading") {
+    return (
+      <div className={cn("shadow-input mx-auto w-full max-w-md rounded-none bg-white p-4 md:rounded-2xl md:p-8 dark:bg-black", className)}>
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-neutral-600 dark:text-neutral-300">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (session?.user) {
+    router.push("/");
+    return null;
+  }
 
   return (
     <div className={cn("shadow-input mx-auto w-full max-w-md rounded-none bg-white p-4 md:rounded-2xl md:p-8 dark:bg-black", className)}>
@@ -24,22 +63,22 @@ export default function RegisterForm({ className }) {
         Join the community. It takes less than a minute.
       </p>
 
-      <form className="my-8" action={formAction}>
+      <form className="my-8" action={handleSubmit}>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="username">Username</Label>
-          <Input id="username" name="username" placeholder="yourname" type="text" />
+          <Input id="username" name="username" placeholder="yourname" type="text" required />
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
-          <Input id="email" name="email" placeholder="you@example.com" type="email" />
+          <Input id="email" name="email" placeholder="you@example.com" type="email" required />
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" name="password" placeholder="••••••••" type="password" />
+          <Input id="password" name="password" placeholder="••••••••" type="password" required />
         </LabelInputContainer>
         <LabelInputContainer className="mb-6">
           <Label htmlFor="confirmPassword">Confirm Password</Label>
-          <Input id="confirmPassword" name="confirmPassword" placeholder="••••••••" type="password" />
+          <Input id="confirmPassword" name="confirmPassword" placeholder="••••••••" type="password" required />
         </LabelInputContainer>
 
         {state?.error && (
@@ -48,12 +87,28 @@ export default function RegisterForm({ className }) {
           </div>
         )}
 
+        {state?.success && (
+          <div className="mb-4 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
+            {state.success}
+          </div>
+        )}
+
         <button
-          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset]"
+          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset] disabled:opacity-50 disabled:cursor-not-allowed"
           type="submit"
+          disabled={isSubmitting || isPending}
         >
-          Create account →
-          <BottomGradient />
+          {isSubmitting || isPending ? (
+            <span className="flex items-center justify-center gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+              Creating account...
+            </span>
+          ) : (
+            <>
+              Create account →
+              <BottomGradient />
+            </>
+          )}
         </button>
 
         <p className="mt-4 text-center text-xs text-neutral-600 dark:text-neutral-400">

@@ -1,14 +1,53 @@
 "use client";
 
-import React from "react";
-import { useFormState } from "react-dom";
+import React, { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { requestPasswordReset } from "@/library/actions";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 export default function ForgotRequestForm({ className }) {
-  const [state, formAction] = useFormState(requestPasswordReset, undefined);
+  const [state, setState] = useState({ error: null, success: null });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // Handle form submission
+  const handleSubmit = async (formData) => {
+    setIsSubmitting(true);
+    setState({ error: null, success: null });
+    
+    startTransition(async () => {
+      try {
+        const result = await requestPasswordReset(null, formData);
+        setState(result);
+      } catch {
+        setState({ error: "An unexpected error occurred. Please try again." });
+      } finally {
+        setIsSubmitting(false);
+      }
+    });
+  };
+
+  // If already authenticated, redirect
+  if (status === "loading") {
+    return (
+      <div className={cn("shadow-input mx-auto w-full max-w-md rounded-none bg-white p-4 md:rounded-2xl md:p-8 dark:bg-black", className)}>
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-neutral-600 dark:text-neutral-300">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (session?.user) {
+    router.push("/");
+    return null;
+  }
 
   return (
     <div className={cn("shadow-input mx-auto w-full max-w-md rounded-none bg-white p-4 md:rounded-2xl md:p-8 dark:bg-black", className)}>
@@ -17,10 +56,10 @@ export default function ForgotRequestForm({ className }) {
         Enter your email and we&apos;ll generate a reset link.
       </p>
 
-      <form className="my-8" action={formAction}>
+      <form className="my-8" action={handleSubmit}>
         <LabelInputContainer className="mb-6">
           <Label htmlFor="email">Email Address</Label>
-          <Input id="email" name="email" placeholder="you@example.com" type="email" />
+          <Input id="email" name="email" placeholder="you@example.com" type="email" required />
         </LabelInputContainer>
 
         {state?.error && (
@@ -38,11 +77,21 @@ export default function ForgotRequestForm({ className }) {
         )}
 
         <button
-          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset]"
+          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset] disabled:opacity-50 disabled:cursor-not-allowed"
           type="submit"
+          disabled={isSubmitting || isPending}
         >
-          Send reset link →
-          <BottomGradient />
+          {isSubmitting || isPending ? (
+            <span className="flex items-center justify-center gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+              Sending reset link...
+            </span>
+          ) : (
+            <>
+              Send reset link →
+              <BottomGradient />
+            </>
+          )}
         </button>
       </form>
     </div>

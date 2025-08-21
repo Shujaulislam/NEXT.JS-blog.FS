@@ -177,6 +177,8 @@ export const login = async (prevState, formData) => {
 
         // If login successful, return success message
         if (result?.ok) {
+            // Add a small delay to ensure session is properly established
+            await new Promise(resolve => setTimeout(resolve, 100));
             return { success: "Login successful" };
         }
 

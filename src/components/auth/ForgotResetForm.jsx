@@ -1,14 +1,57 @@
 "use client";
 
-import React from "react";
-import { useFormState } from "react-dom";
+import React, { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { resetPassword } from "@/library/actions";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 export default function ForgotResetForm({ token, className }) {
-  const [state, formAction] = useFormState(resetPassword, undefined);
+  const [state, setState] = useState({ error: null, success: null });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // Handle form submission
+  const handleSubmit = async (formData) => {
+    setIsSubmitting(true);
+    setState({ error: null, success: null });
+    
+    startTransition(async () => {
+      try {
+        const result = await resetPassword(null, formData);
+        setState(result);
+        if (result.success) {
+          // Redirect to login after successful password reset
+          setTimeout(() => router.push("/login"), 2000);
+        }
+      } catch {
+        setState({ error: "An unexpected error occurred. Please try again." });
+      } finally {
+        setIsSubmitting(false);
+      }
+    });
+  };
+
+  // If already authenticated, redirect
+  if (status === "loading") {
+    return (
+      <div className={cn("shadow-input mx-auto w-full max-w-md rounded-none bg-white p-4 md:rounded-2xl md:p-8 dark:bg-black", className)}>
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-neutral-600 dark:text-neutral-300">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (session?.user) {
+    router.push("/");
+    return null;
+  }
 
   return (
     <div className={cn("shadow-input mx-auto w-full max-w-md rounded-none bg-white p-4 md:rounded-2xl md:p-8 dark:bg-black", className)}>
@@ -17,15 +60,15 @@ export default function ForgotResetForm({ token, className }) {
         Enter and confirm your new password.
       </p>
 
-      <form className="my-8" action={formAction}>
+      <form className="my-8" action={handleSubmit}>
         <input type="hidden" name="token" value={token || ""} />
         <LabelInputContainer className="mb-4">
           <Label htmlFor="password">New password</Label>
-          <Input id="password" name="password" placeholder="••••••••" type="password" />
+          <Input id="password" name="password" placeholder="••••••••" type="password" required />
         </LabelInputContainer>
         <LabelInputContainer className="mb-6">
           <Label htmlFor="confirmPassword">Confirm password</Label>
-          <Input id="confirmPassword" name="confirmPassword" placeholder="••••••••" type="password" />
+          <Input id="confirmPassword" name="confirmPassword" placeholder="••••••••" type="password" required />
         </LabelInputContainer>
 
         {state?.error && (
@@ -40,11 +83,21 @@ export default function ForgotResetForm({ token, className }) {
         )}
 
         <button
-          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset]"
+          className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset] disabled:opacity-50 disabled:cursor-not-allowed"
           type="submit"
+          disabled={isSubmitting || isPending}
         >
-          Update password →
-          <BottomGradient />
+          {isSubmitting || isPending ? (
+            <span className="flex items-center justify-center gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+              Updating password...
+            </span>
+          ) : (
+            <>
+              Update password →
+              <BottomGradient />
+            </>
+          )}
         </button>
       </form>
     </div>

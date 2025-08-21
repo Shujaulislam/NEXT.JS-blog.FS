@@ -64,6 +64,25 @@ auth, signIn, signOut
         }),           
                 ],
                 callbacks: {
+                    // Preserve the essential JWT and session callbacks
+                    async jwt({token, user}) {
+                        if(user) {
+                            token.id = user.id;
+                            token.username = user.username;
+                            token.email = user.email;
+                            token.isAdmin = user.isAdmin;
+                        }
+                        return token;
+                    },
+                    async session({session, token}) {
+                        if(token) {
+                            session.user.id = token.id;
+                            session.user.username = token.username;
+                            session.user.email = token.email;
+                            session.user.isAdmin = token.isAdmin;
+                        }
+                        return session;
+                    },
                     async signIn({user, account, profile}) {
                         console.log( user, account, profile );
                         if (account.provider === "github") {
@@ -107,6 +126,24 @@ auth, signIn, signOut
                         }
                         return true;
                     },
-                ...authConfig.callbacks,
+                    // Add the authorized callback from authConfig
+                    authorized({auth, request}) {
+                        const user = auth?.user;
+                        const isOnAdminPanel = request.nextUrl?.pathname.startsWith("/admin");
+                        const isOnBlogPage = request.nextUrl?.pathname.startsWith("/blog");
+                        const isOnLoginPage = request.nextUrl?.pathname.startsWith("/login");
+
+                        // ONLY ADMIN GETS ACCESS TO DASHBOARD
+                        if(isOnAdminPanel && !user?.isAdmin){return false;}
+
+                        // ONLY AUTHENTICATED USER ACCESS THE BLOG
+                        if(isOnBlogPage && !user){return false;}
+
+                        // ONLY UN-AUTHENTICATED USER ACCESS THE LOGIN
+                        if(user && isOnLoginPage) {
+                            return Response.redirect(new URL("/",request.nextUrl));
+                        }
+                        return true;
+                    },
                 },
             });
