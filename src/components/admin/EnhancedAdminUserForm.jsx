@@ -170,7 +170,7 @@ const EnhancedAdminUserForm = () => {
                 <LabelInputContainer className="mb-4">
                     <div className="flex items-center justify-between">
                         <Label htmlFor="img" className="flex items-center gap-2">
-                            <Image className="h-4 w-4" />
+                            <Image alt="Image" className="h-4 w-4" />
                             Profile Image URL
                         </Label>
                         {imageUrl && (
