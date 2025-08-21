@@ -1,11 +1,11 @@
 import Image from 'next/image';
 import PostUser from '@/components/postUser/postUser';
 import { Suspense } from 'react';
-import { getPost } from '@/library/data';
-import { getPosts } from '@/library/data';
 import { headers } from 'next/headers';
-import { Calendar, Clock, ArrowLeft, Share2, BookOpen, Eye, Bookmark, ExternalLink } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, Share2, Eye, Bookmark, ExternalLink, Tag, FolderOpen } from 'lucide-react';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 // FETCH DATA WITH AN API
 const getData = async (slug) => {
@@ -32,16 +32,50 @@ const getData = async (slug) => {
 export const generateMetadata = async  ({params}) => {
   const { slug } = await params;
 
-  const post = await getPost(slug);
+  try {
+    const post = await getData(slug);
 
-  return{
-    title: post.title,
-    description: post.description,
-  };
+    return{
+      title: post.title,
+      description: post.description,
+      keywords: post.seoKeywords?.join(', ') || post.tags?.join(', '),
+      openGraph: {
+        title: post.title,
+        description: post.description,
+        type: 'article',
+        publishedTime: post.createdAt,
+        images: post.img ? [
+          {
+            url: post.img,
+            width: 1200,
+            height: 630,
+            alt: post.title,
+          }
+        ] : [],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: post.title,
+        description: post.description,
+        images: post.img ? [post.img] : [],
+      },
+      alternates: {
+        canonical: `/blog/${slug}`,
+      },
+    };
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    // Return fallback metadata if post fetch fails
+    return {
+      title: 'Blog Post',
+      description: 'Blog post content',
+    };
+  }
 };
 
 // Helper function to calculate read time
 const calculateReadTime = (text) => {
+  if (!text) return "1 min read";
   const wordsPerMinute = 200;
   const words = text.trim().split(/\s+/).length;
   const readTime = Math.ceil(words / wordsPerMinute);
@@ -71,10 +105,19 @@ const SinglePostPage = async ({params}) => {
   console.log(post);
 
   // Fetch all posts for related articles
-  const allPosts = await getPosts();
-  const relatedPosts = allPosts
-    .filter(p => p.slug !== slug) // Exclude current post
-    .slice(0, 3); // Show max 3 related posts
+  let relatedPosts = [];
+  try {
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+    const host = (await headers()).get('host');
+    const res = await fetch(`${protocol}://${host}/api/blog`);
+    const allPosts = res.ok ? await res.json() : [];
+    relatedPosts = allPosts
+      .filter(p => p.slug !== slug && p.status === 'published') // Exclude current post and only show published
+      .slice(0, 3); // Show max 3 related posts
+  } catch (error) {
+    console.error('Error fetching related posts:', error);
+    // relatedPosts already initialized as empty array
+  }
 
     return (
     <>
@@ -107,8 +150,8 @@ const SinglePostPage = async ({params}) => {
             <div className="max-w-4xl mx-auto text-center">
               {/* Category Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/20 to-secondary/20 text-primary rounded-full text-sm font-medium mb-6 border border-primary/30 shadow-lg">
-                <BookOpen className="w-4 h-4" />
-                Blog Post
+                <FolderOpen className="w-4 h-4" />
+                {post.category || 'Blog Post'}
               </div>
               
               {/* Title */}
@@ -124,13 +167,28 @@ const SinglePostPage = async ({params}) => {
                 </div>
                 <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm px-3 py-2 rounded-full border border-border/30">
                   <Clock className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">{calculateReadTime(post.description)}</span>
+                  <span className="text-sm font-medium">{calculateReadTime(post.content || post.description)}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm px-3 py-2 rounded-full border border-border/30">
                   <Eye className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">Reading</span>
+                  <span className="text-sm font-medium">{post.wordCount || 0} words</span>
                 </div>
               </div>
+
+              {/* Tags */}
+              {post.tags && post.tags.length > 0 && (
+                <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+                  {post.tags.map((tag, index) => (
+                    <span 
+                      key={index}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-card/80 backdrop-blur-sm text-foreground/70 rounded-full text-sm border border-border/30"
+                    >
+                      <Tag className="w-3 h-3" />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -167,15 +225,38 @@ const SinglePostPage = async ({params}) => {
                 </div>
               )}
 
-              {/* Article Content */}
+              {/* Article Content with Markdown */}
               <article className="prose prose-lg md:prose-xl max-w-none">
                 <div className="bg-card border border-border rounded-2xl p-8 md:p-12 shadow-xl">
-                  <div className="text-foreground/80 leading-relaxed text-lg md:text-xl space-y-6">
-                    {post.description.split('\n').map((paragraph, index) => (
-                      <p key={index} className="mb-6 last:mb-0">
-                        {paragraph}
-                      </p>
-                    ))}
+                  <div className="text-foreground/80 leading-relaxed text-lg md:text-xl">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        h1: ({children}) => <h1 className="text-3xl font-bold text-foreground mb-4">{children}</h1>,
+                        h2: ({children}) => <h2 className="text-2xl font-bold text-foreground mb-3">{children}</h2>,
+                        h3: ({children}) => <h3 className="text-xl font-bold text-foreground mb-3">{children}</h3>,
+                        h4: ({children}) => <h4 className="text-lg font-bold text-foreground mb-2">{children}</h4>,
+                        h5: ({children}) => <h5 className="text-base font-bold text-foreground mb-2">{children}</h5>,
+                        h6: ({children}) => <h6 className="text-sm font-bold text-foreground mb-2">{children}</h6>,
+                        p: ({children}) => <p className="text-foreground/80 mb-4 leading-relaxed">{children}</p>,
+                        strong: ({children}) => <strong className="text-foreground font-semibold">{children}</strong>,
+                        em: ({children}) => <em className="text-foreground/70 italic">{children}</em>,
+                        code: ({children}) => <code className="bg-muted text-primary px-2 py-1 rounded text-sm font-mono">{children}</code>,
+                        pre: ({children}) => <pre className="bg-muted text-foreground p-4 rounded-lg overflow-x-auto mb-4">{children}</pre>,
+                        blockquote: ({children}) => <blockquote className="border-l-4 border-primary pl-4 italic text-foreground/70 mb-4">{children}</blockquote>,
+                        ul: ({children}) => <ul className="list-disc list-inside text-foreground/80 mb-4 space-y-1">{children}</ul>,
+                        ol: ({children}) => <ol className="list-decimal list-inside text-foreground/80 mb-4 space-y-1">{children}</ol>,
+                        li: ({children}) => <li className="text-foreground/80">{children}</li>,
+                        a: ({href, children}) => <a href={href} className="text-primary hover:text-primary/80 underline">{children}</a>,
+                        img: ({src, alt}) => <img src={src} alt={alt} className="max-w-full h-auto rounded-lg my-4" />,
+                        hr: () => <hr className="border-border my-6" />,
+                        table: ({children}) => <table className="w-full border-collapse border border-border mb-4">{children}</table>,
+                        th: ({children}) => <th className="border border-border px-4 py-2 text-left bg-muted text-foreground font-semibold">{children}</th>,
+                        td: ({children}) => <td className="border border-border px-4 py-2 text-foreground/80">{children}</td>,
+                      }}
+                    >
+                      {post.content || post.description}
+                    </ReactMarkdown>
                   </div>
                 </div>
               </article>
@@ -185,6 +266,9 @@ const SinglePostPage = async ({params}) => {
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <span className="text-sm text-foreground/60">Published on {formatDate(post.createdAt)}</span>
+                    {post.wordCount && (
+                      <span className="text-sm text-foreground/60">• {post.wordCount} words</span>
+                    )}
                   </div>
                   <div className="flex items-center gap-3">
                     <button className="inline-flex items-center gap-2 px-6 py-3 bg-card border border-border text-foreground/70 hover:text-foreground hover:border-primary/30 transition-all duration-200 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
@@ -234,7 +318,7 @@ const SinglePostPage = async ({params}) => {
                       <div className="bg-gradient-to-r from-primary to-secondary h-2 rounded-full" style={{width: '25%'}}></div>
                     </div>
                     <div className="text-xs text-foreground/50">
-                      {calculateReadTime(post.description)} remaining
+                      {calculateReadTime(post.content || post.description)} remaining
                     </div>
                   </div>
                 </div>
