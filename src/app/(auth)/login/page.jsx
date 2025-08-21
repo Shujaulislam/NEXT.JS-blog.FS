@@ -1,19 +1,9 @@
-import LoginForm from "@/components/loginForm/loginForm";
-import { handleGithublogin } from "@/library/actions";
-import styles from "./login.module.css"
+import LoginForm from "@/components/auth/LoginForm";
 
-const LoginPage = () => {
-
-    return (
-        <div className={styles.container}>
-        <div className={styles.wrapper}>
-        <form action={handleGithublogin}>
-        <button className={styles.github}>Login with GitHub</button>
-        </form>
+export default function LoginPage() {
+  return (
+    <main className="mx-auto max-w-screen-sm px-4 py-16 sm:py-24 lg:py-32">
         <LoginForm />
-        </div>
-        </div>
-    )
+    </main>
+  )
 }
-
-export default LoginPage

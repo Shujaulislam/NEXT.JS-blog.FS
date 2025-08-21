@@ -1,15 +1,10 @@
+import RegisterForm from "@/components/auth/RegisterForm";
 
-import styles from "./register.module.css"
-import RegisterForm from "@/components/regsiterForm/registerForm"
 
-const RegisterPage = () => {
-    return (
-        <div className={styles.container}>
-        <div className={styles.wrapper}>
+export default function RegisterPage() {
+  return (
+    <main className="mx-auto max-w-screen-sm px-4 py-16 sm:py-24 lg:py-32">
         <RegisterForm />
-        </div>
-        </div>
-    )
+    </main>
+  )
 }
-
-export default RegisterPage
