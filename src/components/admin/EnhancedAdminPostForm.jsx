@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { Image, Link, Type, AlignLeft, Eye, EyeOff, RefreshCw } from "lucide-react"
+import NextImage from "next/image"
 
 const EnhancedAdminPostForm = ({ userId }) => {
     const [state, formAction] = useActionState(addPost, undefined)
@@ -151,9 +152,11 @@ const EnhancedAdminPostForm = ({ userId }) => {
                     {/* Image Preview */}
                     {showImagePreview && imageUrl && (
                         <div className="mt-3 p-3 bg-muted/20 rounded-lg border border-border">
-                            <img 
+                            <NextImage 
                                 src={imageUrl} 
                                 alt="Preview" 
+                                width={400}
+                                height={128}
                                 className="w-full h-32 object-cover rounded-md"
                                 onError={(e) => {
                                     e.target.style.display = 'none'

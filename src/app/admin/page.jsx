@@ -18,6 +18,7 @@ import {
     Clock,
     Eye
 } from "lucide-react"
+import Link from "next/link"
 
 const AdminPage = () => {
     const { user, loading, error } = useAdminAuth()
@@ -376,12 +377,12 @@ const AdminPage = () => {
                     <p className="text-foreground/70 mb-6">
                         {error || "You need to be logged in to access the admin dashboard."}
                     </p>
-                    <a 
+                    <Link 
                         href="/login" 
                         className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                     >
                         Go to Login
-                    </a>
+                    </Link>
                 </div>
             </div>
         )
@@ -397,12 +398,12 @@ const AdminPage = () => {
                     <p className="text-foreground/70 mb-6">
                         You need administrator privileges to access this dashboard.
                     </p>
-                    <a 
+                    <Link 
                         href="/" 
                         className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                     >
                         Go Home
-                    </a>
+                    </Link>
                 </div>
             </div>
         )
