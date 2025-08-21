@@ -19,11 +19,27 @@ module.exports = {
         },
         {
           protocol: 'https',
+          hostname: 'pixabay.com',
+        },
+        {
+          protocol: 'https',
+          hostname: 'cdn.pixabay.com',
+        },
+        {
+          protocol: 'https',
           hostname: 'example.com',
         },
         {
           protocol: 'https',
           hostname: 'another-domain.com',
+        },
+        {
+          protocol: 'https',
+          hostname: 'images.unsplash.com'
+        },
+        {
+          protocol: 'https',
+          hostname: 'unsplash.com'
         },
       ],
     },
