@@ -3,9 +3,9 @@ import { connectToDb } from "@/library/utils";
 import { NextResponse } from "next/server";
 
 export const GET = async (request, { params }) => {
-    const { slug } = params;
+    const { slug } = await params;
     try {
-        connectToDb();
+        await connectToDb();
         const post = await Post.findOne({ slug });
         if (!post) {
             return NextResponse.json({ error: 'Post not found' }, { status: 404 });
@@ -21,9 +21,9 @@ export const GET = async (request, { params }) => {
 };
 
 export const DELETE = async (request, { params }) => {
-    const { slug } = params;
+    const { slug } = await params;
     try {
-        connectToDb();
+        await connectToDb();
         const result = await Post.deleteOne({ slug });
         if (result.deletedCount === 0) {
             return NextResponse.json(

@@ -175,6 +175,11 @@ export const login = async (prevState, formData) => {
             }
         }
 
+        // If login successful, return success message
+        if (result?.ok) {
+            return { success: "Login successful" };
+        }
+
         return result;
     } catch (err) {
         console.error("Login error:", err);

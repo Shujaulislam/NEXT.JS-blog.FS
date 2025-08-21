@@ -46,7 +46,15 @@ auth, signIn, signOut
          CredentialsProvider({ async authorize(credentials) {
             try {
                 const user = await login(credentials);
-                return user;
+                // Return user object in the format NextAuth expects
+                return {
+                    id: user._id.toString(),
+                    username: user.username,
+                    name: user.name || user.username,
+                    email: user.email,
+                    image: user.img,
+                    isAdmin: user.isAdmin
+                };
             } catch (error) {
                 console.error("Authorization error:", error.message);
                 // Propagate specific error types
@@ -72,8 +80,8 @@ auth, signIn, signOut
                             }
 
                             try {
-                                const user = await User.findOne({email: profile.email});
-                                if(!user){
+                                const existingUser = await User.findOne({email: profile.email});
+                                if(!existingUser){
                                     // Generate a unique username if GitHub login exists
                                     let uniqueUsername = profile.login;
                                     let counter = 1;
@@ -84,10 +92,12 @@ auth, signIn, signOut
 
                                     const newUser = new User({
                                         username: uniqueUsername,
+                                        name: profile.name || profile.login,
                                         email: profile.email,
                                         img: profile.avatar_url,
                                     });
                                     await newUser.save();
+                                    return true;
                                 }
                                 return true;
                             } catch(err) {
